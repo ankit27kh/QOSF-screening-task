@@ -31,6 +31,9 @@ This challenge has been inspired by the following papers [A generative modeling 
 * Plots folder contains results obtained for layers -> 1 to 10
 * accuracy_scores_comparison.png contains accuracy scores from all 10 cases
 * fidelity_result_comparison.png contains fidelity from all 10 cases
+* 10param.pkl contains the trained parameters from the 10 layer case
+* other_input_states.png contains fidelity values when other states are provided as input
+* other_input_states.py is the file for checking results on other states.
 
 
 # Description
@@ -45,6 +48,10 @@ The output state is compared with the labels by calculating the state fidelity.
 
 Accuracy of the circuit is tested by checking if our output state corresponds to the label state. This is done by checking the fidelity of the output state with all 4 label states and assigning the max fidelity state.
 
+
+To check the effect on other states, states other than the 4 that were used for training are passed as input to the trained circuit.
+State fidelities are calculated wrt all 16 possible states. We can see from the plot that for other states, there is no clear answer.
+All states are likely candidates. If we again predict using max fidelity value, we will again get fix states for each input, but it's difficult to see what significance these have. We also see same label for two different input states.
 
 # Results
 From the plots we can see that with increasing layers we achieve 1 state fidelity. This means output states are completely same to the label states.
