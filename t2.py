@@ -1,30 +1,33 @@
-import time
 import matplotlib.pyplot as plt
 import pennylane as qml
 import pennylane.numpy as np
 import seaborn as sns
 
 sns.set_theme()
+rng = np.random.default_rng(42)
 
 n_qubits = 4
 possible_states = 2 ** n_qubits
-rng = np.random.default_rng(42)
 
-random_states = rng.choice(possible_states, 4, replace=False)
-print(random_states)
+random_states = rng.choice(
+    possible_states, 4, replace=False
+)  # Select any 4 random states. These will form our input data.
 
-label_states = [3, 5, 10, 12]
-data_points = 100
+label_states = [3, 5, 10, 12]  # Label states from the question
+data_points = 100  # Number of points in the dataset.
 
 ini_data = [(i, j) for i, j in zip(random_states, label_states)]
-input_data = rng.choice(ini_data, data_points, replace=True)
+input_data = rng.choice(
+    ini_data, data_points, replace=True
+)  # Generate input data. Contains copies of the random states generated above.
 
-x = np.array([i[0] for i in input_data])
-y = np.array([i[1] for i in input_data])
+x = np.array([i[0] for i in input_data])  # 'Features'
+y = np.array([i[1] for i in input_data])  # 'Labels'
 
-dev = qml.device('default.qubit', wires=n_qubits)
-n_layers = 2
-params = rng.random([n_qubits, n_layers, 3])
+dev = qml.device("default.qubit", wires=n_qubits)
+n_layers = 2  # Change number of layers here.
+
+params = rng.random([n_qubits, n_layers, 3])  # Random parameter initialization
 
 
 @qml.qnode(dev)
@@ -36,7 +39,7 @@ def circuit_prep(n):
     """
     n = "{0:b}".format(int(n)).zfill(n_qubits)
     for i in range(n_qubits):
-        if n[i] == '1':
+        if n[i] == "1":
             qml.PauliX(wires=i)
     return qml.state()
 
@@ -58,12 +61,12 @@ def var_circ(parameters, x_=None):
     """
     n = "{0:b}".format(int(x_)).zfill(n_qubits)
     for i in range(n_qubits):
-        if n[i] == '1':
+        if n[i] == "1":
             qml.PauliX(wires=i)
     for i in range(n_layers):
         for j in range(n_qubits):
             qml.Rot(*parameters[j][i], wires=j)
-        qml.broadcast(qml.CNOT, wires=range(n_qubits), pattern='ring')
+        qml.broadcast(qml.CNOT, wires=range(n_qubits), pattern="ring")
     return qml.state()
 
 
@@ -105,36 +108,34 @@ def score(x_, y_):
     return sum(labels == y_) / len(x_)
 
 
-opt = qml.AdamOptimizer()
-batch_size = int(len(x) * .1)
-costs = [cost_func(params, x, y)]
-t1 = time.time()
-scores = []
+opt = qml.AdamOptimizer()  # Optimizer
+batch_size = int(len(x) * 0.1)  # Batch size of data to be optimized in each step.
+costs = [cost_func(params, x, y)]  # Store fidelity for each step
+scores = [score(x, y)]  # Store accuracy for each step
+
 for i in range(1, 250):
     batch = rng.integers(0, len(x), size=(batch_size,))
     X_batch = x[batch]
     y_batch = y[batch]
-    params = opt.step(lambda w: cost_func(w, X_batch, y_batch), params)
+    params = opt.step(lambda w: cost_func(w, X_batch, y_batch), params)  # Optimization step
     costs.append(cost_func(params, x, y))
     scores.append(score(x, y))
-    if i % 10 == 0:
-        print(i)
-        print(time.time() - t1)
 
+# Plot results
 plt.plot(range(len(costs)), -np.asarray(costs))
 plt.ylabel("State Fidelity")
-plt.xlabel('No. of steps')
+plt.xlabel("No. of steps")
 plt.xlim(left=0)
 plt.ylim([0, 1])
-plt.title(f'State Fidelity with {n_layers} layers')
+plt.title(f"State Fidelity with {n_layers} layers")
 plt.tight_layout()
 plt.show()
 
 plt.plot(range(len(scores)), scores, ":*")
 plt.ylabel("Accuracy")
-plt.xlabel('No. of steps')
+plt.xlabel("No. of steps")
 plt.xlim(left=0)
 plt.ylim([0, 1])
-plt.title(f'Accuracy score with {n_layers} layers')
+plt.title(f"Accuracy score with {n_layers} layers")
 plt.tight_layout()
 plt.show()
