@@ -2,7 +2,7 @@ import pickle
 import pandas as pd
 from matplotlib import pyplot as plt
 
-with open('10param.pkl', 'rb') as f:
+with open("10param.pkl", "rb") as f:
     params = pickle.load(f)
 
 import pennylane as qml
@@ -14,6 +14,7 @@ n_qubits = 4
 possible_states = 2 ** n_qubits
 
 """
+Trained with these
 7 -> 3
 1 -> 5
 9 -> 10
@@ -100,5 +101,5 @@ plt.xticks(rotation=0)
 plt.tight_layout()
 plt.show()
 
-results = pd.DataFrame([results], index=['Output State'])
+results = pd.DataFrame([results], index=["Output State"])
 print(results)
