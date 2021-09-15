@@ -110,7 +110,7 @@ batch_size = int(len(x) * .1)
 costs = [cost_func(params, x, y)]
 t1 = time.time()
 scores = []
-for i in range(1, 500):
+for i in range(1, 250):
     batch = rng.integers(0, len(x), size=(batch_size,))
     X_batch = x[batch]
     y_batch = y[batch]
