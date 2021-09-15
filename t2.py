@@ -2,11 +2,12 @@ import time
 import matplotlib.pyplot as plt
 import pennylane as qml
 import pennylane.numpy as np
+import seaborn as sns
+
+sns.set_theme()
 
 n_qubits = 4
-
-possible_states = 2 ** 4
-
+possible_states = 2 ** n_qubits
 rng = np.random.default_rng(42)
 
 random_states = rng.choice(possible_states, 4, replace=False)
@@ -109,7 +110,7 @@ batch_size = int(len(x) * .1)
 costs = [cost_func(params, x, y)]
 t1 = time.time()
 scores = []
-for i in range(1, 50):
+for i in range(1, 500):
     batch = rng.integers(0, len(x), size=(batch_size,))
     X_batch = x[batch]
     y_batch = y[batch]
@@ -120,10 +121,20 @@ for i in range(1, 50):
         print(i)
         print(time.time() - t1)
 
-plt.plot(range(len(costs)), costs)
-plt.title(f'costs {n_layers}')
+plt.plot(range(len(costs)), -np.asarray(costs))
+plt.ylabel("State Fidelity")
+plt.xlabel('No. of steps')
+plt.xlim(left=0)
+plt.ylim([0, 1])
+plt.title(f'State Fidelity with {n_layers} layers')
+plt.tight_layout()
 plt.show()
 
-plt.plot(range(len(scores)), scores)
-plt.title(f'scores {n_layers}')
+plt.plot(range(len(scores)), scores, ":*")
+plt.ylabel("Accuracy")
+plt.xlabel('No. of steps')
+plt.xlim(left=0)
+plt.ylim([0, 1])
+plt.title(f'Accuracy score with {n_layers} layers')
+plt.tight_layout()
 plt.show()
